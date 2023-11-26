@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/mainStyle.css}">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <title>Messenger</title>
+</head>
+<body>
+
+    <div class="chatContainer">
+        <!--box on the left with friends-->
+
+        <div class="chatList" th:attr="data-users='${allUsersAsJson}'">
+            <div class="userInfo" th:text="${userName}">
+
+            </div>
+
+            <div class="friends">
+                Friend name
+            </div>
+        </div>
+
+        <!--area to chat-->
+        <div class="userChat" th:attr="data-users='${messagesAsJson}'">
+            <div class="friendName" th:text="${currentFriend}">
+                Friend
+                <div id="test">Test</div>
+            </div>
+
+            <div id="messageContainer">
+                <div class="userMessage">
+                    Messages are going to be here
+                </div>
+            </div>
+                <div class="inputForm">
+                <form id="messageForm">
+                    <input class="hidden" id="specialId" name="specialId"/>
+                    <input class="hidden" id="receiverId" name="receiverId"/>
+                    <input class="hidden" name="senderId" th:value="${userName}"/>
+                    <input class="messageInput" id="messageInput" type="text" name="messageContent"/>
+                    <button type="submit">Send</button>
+                </form>
+                </div>
+
+        </div>
+
+
+    </div>
+    <script th:inline="javascript">
+        const friendNameDiv = document.querySelector('.chatList');
+        const loadMessages = document.getElementById("messageForm");
+        const temp = /*[[${userName}]]*/ 'Default';
+        const messageContent = document.getElementById("messageInput");
+
+        const setSpecialId = document.getElementById("specialId");
+        let tempReceiverId;
+        let tempSenderId;
+        //const forTest = document.getElementById("test");
+
+        /*forTest.addEventListener("click", function (event){
+            $.ajax({
+                type: 'GET',
+                url: 'userPage/getmessages',
+                data: {
+                    testData: temp
+                },
+                success: function (data){
+                    console.log("It is working");
+                    console.log(data);
+                }
+            })
+        })*/
+
+
+        console.log("This is the current friend outside "+tempReceiverId);
+
+        if (friendNameDiv) {
+            const userData = JSON.parse(/*[[${allUsersAsJson}]]*/ '[]');
+            console.log("userData:", userData);
+            console.log("userData length:", userData.length);
+            // Iterate over the user data and create div elements
+            userData.forEach(user => {
+                if(temp!==user.username) {
+                    const userDiv = document.createElement('div');
+                    userDiv.textContent = user.username; // You can replace 'name' with the actual field from your user data
+                    userDiv.classList.add('friends');
+
+
+                    userDiv.onclick = function () {
+                        const messageContainer = document.getElementById("messageContainer");
+                        messageContainer.innerHTML = '';
+
+                        tempReceiverId=user.username;
+                        console.log("This is the current friend"+tempReceiverId);
+                        const setFriendName = document.querySelector('.friendName');
+                        const setReceiver = document.getElementById("receiverId");
+                        setFriendName.textContent = user.username;
+                        setReceiver.value=user.username;
+
+                        setSpecialId.value=Math.floor((Math.random()*(99999-10000)+10000)+1);
+
+                            function checkForNewMessages() {
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/userPage/getmessages',
+                                    data:{
+                                        senderId: temp,
+                                        receiverId: tempReceiverId
+                                    },
+                                    success: function (data) {
+                                     // Update the content on the page with the updated messagesAsJson
+                                        const updatedMessages=JSON.parse(data);
+
+                                        //console.log('Updated Messages:', updatedMessages);
+
+
+                                        updatedMessages.forEach(message => {
+                                            //if (message.senderId === temp || message.senderId === user.username) {
+                                                //if (message.receiverId === user.username || message.receiverId === temp) {
+
+                                                    tempSenderId=message.senderId;
+                                                    const messageDiv = document.createElement('div');
+                                                    messageDiv.textContent = message.messageContent;
+
+                                                    messageDiv.classList.add('hidden');
+                                                    messageContainer.appendChild(messageDiv);
+
+
+                                                //}
+                                           // }
+                                        });
+
+                                        const showCreated = messageContainer.querySelectorAll('div');
+
+                                        const removeExisting = messageContainer.querySelectorAll('.userMessage');
+                                        //console.log(removeExisting);
+                                        removeExisting.forEach(div =>{
+                                            div.parentNode.removeChild(div);
+                                            console.log("I removed "+div);
+                                        });
+
+
+
+
+
+
+                                        showCreated.forEach(div => {
+                                            div.classList.remove('hidden');
+
+
+
+
+
+                                            div.classList.add('userMessage');
+
+                                        });
+
+                                    // Schedule the next check
+                                        setTimeout(checkForNewMessages, 5000); // Check every 5 seconds (adjust as needed)
+                                    },
+                                    error: function (xhr, status, error) {
+                                        // Handle errors if necessary
+                                        console.error("Error checking for new messages:", error);
+                                    }
+                                });
+                            }
+
+                            // Initial check
+                            checkForNewMessages();
+
+
+
+                        /*const cleanse=document.getElementById("messageContainer");
+
+                        while (cleanse.firstChild){
+                            cleanse.removeChild(cleanse.firstChild);
+                        }*/
+
+
+
+
+                    };
+
+                    friendNameDiv.appendChild(userDiv);
+                }
+            });
+
+            if(loadMessages){
+                loadMessages.addEventListener('submit', function (event){
+                    event.preventDefault();
+
+                    loadMessages.querySelector('button').disabled = true;
+
+                    const formData=new FormData(loadMessages);
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/userPage',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (data){
+                            setSpecialId.value=Math.floor((Math.random()*(99999-10000)+10000)+1);
+                            messageContent.value='';
+                            console.log("I posted");
+                            $.ajax({
+                                type: 'GET',
+                                url: 'userPage/getmessages',
+                                data:{
+                                    senderId: temp,
+                                    receiverId: tempReceiverId
+                                },
+                                success: function(data1){
+
+                                    const updatedMessages=JSON.parse(data1);
+
+                                    //console.log(updatedMessages);
+                                    const messageContainer=document.getElementById("messageContainer");
+
+                                    messageContainer.innerHTML='';
+
+                                    updatedMessages.forEach(message => {
+                                        //if(message.senderId===temp||message.senderId===user.username){
+                                            //if(message.receiverId===user.username||message.receiverId===temp){
+
+                                                const messageDiv = document.createElement('div');
+                                                messageDiv.textContent = message.messageContent;
+                                                messageDiv.classList.add('userMessage');
+                                                messageContainer.appendChild(messageDiv);
+                                            //}
+                                        //}
+                                    });
+
+
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error("Error fetching messages:", error);
+                                },
+                                complete: function () {
+                                    // Re-enable the form or button after the Ajax request is complete
+                                    loadMessages.querySelector('button').disabled = false;
+                                }
+                            })
+                        }
+                    })
+
+
+                })
+            }
+        }
+    </script>
+
+
+
+</body>
+</html>

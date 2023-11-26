@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/mainStyle.css}">
+    <title>Title</title>
+</head>
+<body>
+  <a href="userPage.html">UserPage</a>
+    <div class="loginForm">
+        <form action="index" method="post">
+            <label for="username">Username</label><br/>
+            <input type="text" name="username"/><br/>
+            <label for="pword">Password</label><br/>
+            <input type="password" name="pword"><br/>
+            <button id="loginButton" type="submit">Login</button>
+            <a href="signUp">Sign up page</a>
+        </form>
+
+        <p th:text="${loginFail}"></p>
+
+
+    </div>
+</body>
+</html>
