@@ -16,9 +16,7 @@
 
             </div>
 
-            <div class="friends">
-                Friend name
-            </div>
+            
         </div>
 
         <!--area to chat-->
@@ -121,7 +119,7 @@
 
                                                     tempSenderId=message.senderId;
                                                     const messageDiv = document.createElement('div');
-                                                    messageDiv.textContent = message.messageContent;
+                                                    messageDiv.textContent = message.senderId+": "+message.messageContent;
 
                                                     messageDiv.classList.add('hidden');
                                                     messageContainer.appendChild(messageDiv);
@@ -225,7 +223,7 @@
                                             //if(message.receiverId===user.username||message.receiverId===temp){
 
                                                 const messageDiv = document.createElement('div');
-                                                messageDiv.textContent = message.messageContent;
+                                                messageDiv.textContent = message.senderId+": "+message.messageContent;
                                                 messageDiv.classList.add('userMessage');
                                                 messageContainer.appendChild(messageDiv);
                                             //}
